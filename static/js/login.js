@@ -31,8 +31,13 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
         // Store the JWT token in sessionStorage for better security (cleared when tab closes)
         sessionStorage.setItem('jwt', data.token || data);
 
+        // Get base URL for GitHub Pages or local development
+        const baseUrl = window.location.pathname.includes('/Graphql') 
+            ? '/Graphql'  // GitHub Pages repository name
+            : '';
+
         // Redirect user to profile page after successful login
-        window.location.href = 'profile.html';
+        window.location.href = `${baseUrl}/profile.html`;
 
     } catch (error) {
         // Display error message if login fails
