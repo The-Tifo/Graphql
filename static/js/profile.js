@@ -1,3 +1,13 @@
+// Get base URL for GitHub Pages or local development
+const baseUrl = window.location.pathname.includes('/Graphql') 
+    ? '/Graphql'  // GitHub Pages repository name
+    : '';
+
+// Function to redirect to login
+function redirectToLogin() {
+    window.location.href = `${baseUrl}/login.html`;
+}
+
 // Function to fetch user profile data from GraphQL API
 async function fetchUserProfile() {
     // GraphQL query to get user data, transactions, and skills
@@ -65,7 +75,7 @@ async function fetchUserProfile() {
         const token = sessionStorage.getItem('jwt');
         if (!token) {
             // Redirect to login if no token found
-            window.location.href = 'login.html';
+            redirectToLogin();
             return;
         }
 
@@ -140,7 +150,7 @@ async function fetchUserProfile() {
 
     } catch (error) {
         console.error('Error fetching data:', error);
-        window.location.href = 'login.html';
+        redirectToLogin();
     }
 }
 
@@ -465,7 +475,7 @@ document.getElementById('logoutBtn').addEventListener('click', logout);
 window.onpopstate = function(event) {
     const token = sessionStorage.getItem('jwt');
     if (!token) {
-        window.location.href = 'login.html';
+        redirectToLogin();
     }
 };
 
@@ -473,7 +483,7 @@ window.onpopstate = function(event) {
 function checkAuth() {
     const token = sessionStorage.getItem('jwt');
     if (!token) {
-        window.location.href = 'login.html';
+        redirectToLogin();
         return;
     }
     fetchUserProfile();
@@ -490,5 +500,5 @@ function logout() {
             new Date().toUTCString() + ";path=/");
     });
     // Redirect to login page
-    window.location.href = 'login.html';
+    redirectToLogin();
 }
