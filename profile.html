@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Required meta tags for proper rendering and responsive design -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Page title -->
+    <title>Student Profile</title>
+    <!-- Link to profile-specific styles -->
+    <link rel="stylesheet" href="static/css/profile.css">
+</head>
+<body>
+    <!-- Main container for the entire profile page -->
+    <div class="container">
+        <!-- Logout button positioned at the top right -->
+        <button id="logoutBtn" class="logout-btn">Logout</button>
+
+        <!-- Profile card containing all user information -->
+        <div class="profile-card">
+            <!-- User information section (name, login) -->
+            <div id="user-info"></div>
+
+            <!-- Statistics grid layout -->
+            <div class="stats-grid">
+                <!-- Left column with XP and audit ratio -->
+                <div class="stats-column">
+                    <!-- Total XP display -->
+                    <div class="stat-item">
+                        <h3>Total XP</h3>
+                        <div id="xp-total" class="stat-value">Loading...</div>
+                    </div>
+                    <!-- Audit ratio visualization -->
+                    <div class="stat-item audit-section">
+                        <h3>Audit ratio</h3>
+                        <svg id="audit-ratio-graph" width="100%" height="100"></svg>
+                        <div id="ratio-value" class="ratio-value">Almost perfect!</div>
+                    </div>
+                </div>
+                <!-- Right column with skills radar chart -->
+                <div class="stat-item skills-container">
+                    <h3>Best Skills</h3>
+                    <svg id="skills-graph" width="100%" height="300"></svg>
+                </div>
+            </div>
+
+            <!-- Recent projects section styled as a sticky note -->
+            <div class="sticky-note">
+                <h3>Recently Finished Projects</h3>
+                <div id="ProjectRecents" class="project-list"></div>
+            </div>
+
+            <!-- Audit history section -->
+            <div class="audit-history">
+                <h3>Recent Audits</h3>
+                <div id="auditHistory" class="audit-list"></div>
+            </div>
+        </div>
+    </div>
+    <!-- Link to profile-specific JavaScript -->
+    <script src="static/js/profile.js"></script>
+</body>
+</html>

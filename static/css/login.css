@@ -1,0 +1,111 @@
+/* Reset default styles and set base font */
+body {
+    font-family: 'Courier New', monospace;
+    margin: 0;
+    padding: 20px;
+    background: #b4876c;  /* Softer brown background for better readability */
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Main container styling with notebook-like appearance */
+.container {
+    max-width: 400px;
+    width: 100%;
+    padding: 30px;
+    background: #926d4b;  /* Lighter brown for notebook cover */
+    border-radius: 5px;
+    box-shadow: 
+        0 0 0 20px #926d4b,  /* Outer cover shadow */
+        -7px 0 10px rgba(0,0,0,0.4);  /* Softer spine shadow for depth */
+    position: relative;
+    border-left: 30px solid #7d5b3d;  /* Lighter binding color */
+}
+
+/* Decorative notebook binding effect */
+.container::before {
+    content: '';
+    position: absolute;
+    left: -30px;
+    top: 0;
+    bottom: 0;
+    width: 30px;
+    background: repeating-linear-gradient(
+        0deg,
+        #7d5b3d,  /* Dark binding color */
+        #7d5b3d 5px,
+        #6a4c33 5px,  /* Alternate binding color */
+        #6a4c33 10px
+    );
+}
+
+/* Login form header styling */
+h2 {
+    margin-bottom: 30px;
+    text-align: center;
+    color: #f8e5b5;  /* Soft gold text for contrast */
+    font-size: 28px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.2);  /* Subtle text shadow */
+}
+
+/* Form group container for input fields */
+.form-group {
+    margin-bottom: 20px;
+}
+
+/* Label styling for form inputs */
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #f8e5b5;  /* Matching header color */
+    font-weight: bold;
+}
+
+/* Input field styling */
+.form-group input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #7d5b3d;  /* Matching binding color */
+    border-radius: 4px;
+    box-sizing: border-box;
+    background: #f8e5b5;  /* Light background for input fields */
+    color: #4a3827;  /* Dark brown text */
+    font-family: 'Courier New', monospace;
+}
+
+/* Error message styling */
+.error {
+    color: #ff9999;  /* Soft red for errors */
+    margin-top: 15px;
+    display: none;  /* Hidden by default */
+    text-align: center;
+    background: rgba(0,0,0,0.1);
+    padding: 10px;
+    border-radius: 4px;
+}
+
+/* Submit button styling */
+button {
+    width: 100%;
+    padding: 15px;
+    background: #e6c78c;  /* Soft gold button */
+    color: #4a3827;  /* Dark brown text */
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: background-color 0.3s;  /* Smooth hover effect */
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: 'Courier New', monospace;
+}
+
+/* Button hover effect */
+button:hover {
+    background: #f8e5b5;  /* Lighter color on hover */
+}
