@@ -98,6 +98,10 @@ body {
 /* Skills container specific styling */
 .skills-container {
     height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0 80px;  /* Further increased bottom padding */
 }
 
 /* XP and audit container layout */
@@ -139,7 +143,9 @@ body {
 
 /* Skills graph specific styling */
 #skills-graph {
-    margin-top: 10px;
+    margin-top: -20px;  /* More negative top margin to move graph up */
+    width: 100%;
+    max-width: 500px;
 }
 
 #skills-graph text {
@@ -360,4 +366,118 @@ body {
 .status-fail {
     background: #f44336;  /* Error red */
     color: white;
+}
+
+/* Add responsive design media queries */
+@media screen and (max-width: 768px) {
+    .container {
+        padding: 20px 15px 20px 30px;
+        margin: 10px;
+        background-size: 30px 100%, 100% 25px;
+        background-position: 20px 0, 0 0;
+    }
+
+    .container::before {
+        left: 10px;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .stat-item {
+        padding: 10px;
+    }
+
+    .skills-container {
+        padding: 10px 10px 70px;  /* Increased bottom padding for mobile */
+        width: 100%;
+    }
+
+    #skills-graph {
+        height: 200px;  /* Reduced height */
+        width: 80%;     /* Reduced width */
+        max-width: 300px;
+        margin: -25px auto 0;  /* Increased negative margin */
+        display: block;
+    }
+
+    .stat-value {
+        font-size: 20px;
+    }
+
+    .sticky-note {
+        margin: 20px 0;
+        padding: 15px;
+    }
+
+    .audit-history {
+        padding: 15px;
+    }
+
+    .audit-list .audit-item {
+        padding: 8px 15px;
+        font-size: 14px;
+    }
+
+    .status-pass, .status-fail {
+        padding: 3px 10px;
+        font-size: 12px;
+    }
+
+    .logout-btn {
+        position: relative;
+        top: 0;
+        right: 0;
+        margin-bottom: 20px;
+        width: 100%;
+    }
+
+    #user-info h2 {
+        font-size: 20px;
+        word-wrap: break-word;
+    }
+
+    .ratio-value {
+        font-size: 16px;
+    }
+
+    /* Adjust audit list for mobile */
+    .audit-list .audit-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .audit-list .audit-item > div:first-child {
+        margin-bottom: 5px;
+    }
+}
+
+/* Additional adjustments for very small screens */
+@media screen and (max-width: 480px) {
+    .container {
+        padding: 15px 10px 15px 25px;
+        margin: 5px;
+    }
+
+    #skills-graph {
+        height: 180px;  /* Further reduced height */
+        width: 70%;     /* Further reduced width */
+        max-width: 250px;
+        margin: -30px auto 0;  /* Further increased negative margin */
+    }
+
+    .skills-container {
+        padding: 5px 5px 60px;  /* Increased bottom padding */
+    }
+
+    .stat-value {
+        font-size: 18px;
+    }
+
+    #user-info h2 {
+        font-size: 18px;
+    }
 }
