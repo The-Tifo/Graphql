@@ -1,46 +1,58 @@
-// Add event listener for form submission
 document.getElementById('loginForm').addEventListener('submit', async (e) => {
-    // Prevent the default form submission behavior
     e.preventDefault();
 
-    // Get the input values from the form
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
     const errorDiv = document.getElementById('error');
 
-    // Create base64 encoded credentials for Basic Auth
-    const credentials = btoa(`${username}:${password}`);
+    console.log('Login attempt initiated');
 
     try {
-        // Send POST request to authentication endpoint
+        // Clear any existing token
+        sessionStorage.removeItem('jwt');
+        console.log('Cleared existing token');
+
+        const credentials = btoa(`${username}:${password}`);
+        console.log('Credentials encoded, making auth request');
+
         const response = await fetch('https://learn.reboot01.com/api/auth/signin', {
             method: 'POST',
             headers: {
-                'Authorization': `Basic ${credentials}`  // Send credentials in Authorization header
+                'Authorization': `Basic ${credentials}`
             }
         });
 
-        // Check if the response was successful
+        console.log('Auth response status:', response.status);
+
         if (!response.ok) {
-            throw new Error('Invalid credentials');
+            throw new Error(`Auth request failed: ${response.status}`);
         }
 
-        // Parse the JSON response
         const data = await response.json();
+        console.log('Auth response received:', data ? 'yes' : 'no');
 
-        // Store the JWT token in sessionStorage for better security (cleared when tab closes)
-        sessionStorage.setItem('jwt', data.token || data);
+        const token = data.token || data;
+        console.log('Token extracted:', token ? 'yes' : 'no');
 
-        // Get base URL for GitHub Pages or local development
-        const baseUrl = window.location.pathname.includes('/Graphql') 
-            ? '/Graphql'  // GitHub Pages repository name
-            : '';
+        if (!token) {
+            throw new Error('No token received from server');
+        }
 
-        // Redirect user to profile page after successful login
-        window.location.href = `${baseUrl}/profile.html`;
+        // Store token and verify storage
+        sessionStorage.setItem('jwt', token);
+        const storedToken = sessionStorage.getItem('jwt');
+        console.log('Token stored successfully:', storedToken === token);
+
+        if (!storedToken) {
+            throw new Error('Failed to store token in session storage');
+        }
+
+        // Use replace to prevent back button from returning to login
+        console.log('Redirecting to profile page');
+        window.location.replace('profile.html');
 
     } catch (error) {
-        // Display error message if login fails
+        console.error('Login error:', error);
         errorDiv.style.display = 'block';
         errorDiv.textContent = 'Invalid username or password';
     }
