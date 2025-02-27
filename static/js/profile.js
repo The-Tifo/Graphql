@@ -1,156 +1,210 @@
-// Get base URL for GitHub Pages or local development
-const baseUrl = window.location.pathname.includes('/Graphql') 
-    ? '/Graphql'  // GitHub Pages repository name
-    : '';
-
-// Function to redirect to login
-function redirectToLogin() {
-    window.location.href = `${baseUrl}/login.html`;
+// Function to check if token exists and is valid
+function isAuthenticated() {
+    const token = sessionStorage.getItem('jwt');
+    console.log('Checking authentication, token exists:', !!token);
+    return token !== null && token !== undefined;
 }
 
-// Function to fetch user profile data from GraphQL API
-async function fetchUserProfile() {
-    // GraphQL query to get user data, transactions, and skills
-    const query = `{
-        // Get basic user information
-        user {
-            id
-            login
-            totalUp     // Total audit points given to others
-            totalDown   // Total audit points received from others
-            attrs      // User attributes like name, email
-        }
-        // Get total XP from module transactions
-        // Excludes JS piscine XP to show only main curriculum progress
-        transaction_aggregate(
-            where: {
-                _and: [
-                    { type: { _eq: "xp" } },
-                    { path: { _like: "/bahrain/bh-module/%" } },
-                    { path: { _nlike: "/bahrain/bh-module/piscine-js/%"} }
-                ]
-            }
-        ) {
-            aggregate {
-                sum {
-                    amount
-                }
-            }
-        }
-        // Get user's skill progression data
-        // Retrieves distinct skill types and their highest amounts
-        progressionSkill:user {
-            transactions(
-                where: {type: {_like: "skill_%"}}
-                distinct_on: type
-                order_by: [{type: asc}, {amount: desc}]
-            ) {
-                type
-                amount
-            }
-        }
-        // Get recent project completions
-        // Excludes checkpoints and JS piscine projects
-        recentProj:transaction(
-            where: {
-                type: { _eq: "xp" }
-                _and: [
-                    { path: { _like: "/bahrain/bh-module%" } },
-                    { path: { _nlike: "/bahrain/bh-module/checkpoint%" } },
-                    { path: { _nlike: "/bahrain/bh-module/piscine-js%" } }
-                ]
-            }
-            order_by: { createdAt: desc }
-            limit: 5
-        ) {
-            object {
-                type
-                name
-            }
-        }
-    }`;
+// Runs when the page loads
+// Checks if the user is authenticated before fetching profile data
+// Redirects to login page if authentication fails
+document.addEventListener('DOMContentLoaded', async () => {
+    console.log('DOM Content Loaded, checking authentication...');
+    if (!isAuthenticated()) {
+        console.log('No authentication token found, redirecting to login');
+        window.location.href = 'login.html';
+        return;
+    }
+    try {
+        console.log('Starting to fetch profile data...');
+        await fetchProfile(); // Calls function to fetch and display profile data
+    } catch (error) {
+        console.error('Failed to load profile:', error);
+    }
+});
+
+async function fetchProfile() {
+    const token = sessionStorage.getItem('jwt');
+    console.log('Fetching profile with token:', token ? 'exists' : 'missing');
 
     try {
-        // Get JWT token from session storage
-        const token = sessionStorage.getItem('jwt');
-        if (!token) {
-            // Redirect to login if no token found
-            redirectToLogin();
-            return;
-        }
-
-        // Fetch user data from GraphQL API
         const response = await fetch('https://learn.reboot01.com/api/graphql-engine/v1/graphql', {
             method: 'POST',
             headers: {
                 'Authorization': 'Bearer ' + token,
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ query })
+            body: JSON.stringify({
+                query: `
+                {
+                    user {
+                        id
+                        login
+                        auditRatio
+                        totalUp
+                        totalDown
+                        attrs
+                    }
+                    transaction_aggregate(
+                        where: {
+                            _and: [
+                                { type: { _eq: "xp" } },
+                                { path: { _like: "/bahrain/bh-module/%" } },
+                                { path: { _nlike: "/bahrain/bh-module/piscine-js/%"} }
+                            ]
+                        }
+                    ) {
+                        aggregate {
+                            sum {
+                                amount
+                            }
+                        }
+                    }
+                    progressionSkill:user {
+                        transactions(
+                            where: {type: {_like: "skill_%"}}
+                            distinct_on: type
+                            order_by: [{type: asc}, {amount: desc}]
+                        ) {
+                            type
+                            amount
+                        }
+                    }
+                    recentProj:transaction(
+                        where: {
+                            type: { _eq: "xp" }
+                            _and: [
+                                { path: { _like: "/bahrain/bh-module%" } },
+                                { path: { _nlike: "/bahrain/bh-module/checkpoint%" } },
+                                { path: { _nlike: "/bahrain/bh-module/piscine-js%" } }
+                            ]
+                        }
+                        order_by: { createdAt: desc }
+                        limit: 5
+                    ) {
+                        object {
+                            type
+                            name
+                        }
+                    }
+                }
+                `
+            })
         });
 
+        console.log('Profile API response status:', response.status);
+
         if (!response.ok) {
-            throw new Error('Failed to fetch profile data');
+            throw new Error(`Network error: ${response.status}`);
         }
 
         const result = await response.json();
-        const data = result.data;
+        console.log('Profile data received:', result ? 'yes' : 'no');
 
-        // Verify user data exists
-        if (!data || !data.user || !data.user[0]) {
-            throw new Error('Unauthorized');
+        if (!result.data || !result.data.user || !result.data.user.length) {
+            throw new Error('No user data received');
         }
 
-        // Display user data on the page
-        await displayUserData(data);
+        const data = result.data;
+        const userId = data.user[0].id;
+        console.log('User ID retrieved:', userId);
 
-        // Fetch recent audit history
-        // This separate query gets the latest 5 audits performed by the user
-        const auditQuery = `{
-            audit(
-                where: {
-                    auditor: {id: {_eq:${data.user[0].id}}},
-                    private: { code: { _is_null: false }}
-                },
-                order_by: {id: desc},
-                limit: 5
-            ) {
-                createdAt
-                group {
-                    path
-                    captain {
-                        login
-                    }
-                }
-                private {
-                    code
-                }
-            }
-        }`;
-
-        // Fetch audit data from GraphQL API
+        // Fetch audit data
         const auditResponse = await fetch('https://learn.reboot01.com/api/graphql-engine/v1/graphql', {
             method: 'POST',
             headers: {
                 'Authorization': 'Bearer ' + token,
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ query: auditQuery })
+            body: JSON.stringify({
+                query: `
+                {
+                    audit(where: {auditor: {id: {_eq:${userId}}}private: { code: { _is_null: false },}},order_by: {id: desc},limit:5){
+                        createdAt
+                        auditedAt
+                        group {
+                            path
+                            captain {
+                                id
+                                firstName
+                                lastName
+                                login
+                            }
+                        }
+                        private{
+                            code
+                        }
+                    }
+                }
+                `
+            })
         });
 
+        console.log('Audit API response status:', auditResponse.status);
+
         if (!auditResponse.ok) {
-            throw new Error('Failed to fetch audit data');
+            throw new Error(`Failed to fetch audit data: ${auditResponse.status}`);
         }
 
         const auditResult = await auditResponse.json();
-        if (auditResult.data) {
-            // Display audit history on the page
-            displayAuditHistory(auditResult.data.audit);
-        }
+        const auditData = auditResult.data.audit;
+
+        await displayUserData(data);
+        displayAuditHistory(auditData);
 
     } catch (error) {
-        console.error('Error fetching data:', error);
-        redirectToLogin();
+        console.error('Error in fetchProfile:', error);
+        // Only redirect for authentication errors
+        if (error.message.includes('Network error') || error.message.includes('No user data')) {
+            console.log('Authentication error detected, clearing session and redirecting');
+            sessionStorage.removeItem('jwt');
+            window.location.href = 'login.html';
+        }
+    }
+}
+
+// Display audit history on the profile page
+function displayAuditHistory(auditData) {
+    const auditHistory = document.getElementById('currentOrDoneAudits');
+    if (!auditHistory) {
+        console.error('Could not find audit history container');
+        return;
+    }
+    auditHistory.innerHTML = '';
+
+    if (!auditData || !Array.isArray(auditData)) {
+        console.error('Invalid audit data received:', auditData);
+        return;
+    }
+
+    for (let i = 0; i < auditData.length; i++) {
+        const audit = auditData[i];
+
+        // Create audit row
+        const row = document.createElement('div');
+        row.style.display = 'flex';
+        row.style.alignItems = 'center';
+        row.style.justifyContent = 'space-between';
+        row.style.marginBottom = '10px';
+        row.style.marginLeft = '35px';
+        row.style.marginRight = '35px';
+
+        // Extract project name from path
+        const pathParts = audit.group.path.split('/');
+        const projectName = pathParts[pathParts.length - 1];
+
+        // Create audit info
+        const auditInfo = document.createElement('div');
+        auditInfo.textContent = `${audit.group.captain.login} - ${projectName}`;
+        row.appendChild(auditInfo);
+
+        // Create status indicator (Pass/Fail)
+        const statusDiv = document.createElement('div');
+        statusDiv.classList.add(audit.private.code ? 'status-pass' : 'status-fail');
+        statusDiv.textContent = audit.private.code ? 'Pass' : 'Fail';
+        row.appendChild(statusDiv);
+
+        auditHistory.appendChild(row);
     }
 }
 
@@ -223,7 +277,7 @@ async function displayUserData(data) {
     for (let i = 0; i < skillnameAndAmount.length; i++) {
         if (skillnameAndAmount[i].name.length >= 2) {
             // Capitalize first letter of skill name
-            const capitalizedSkillName = skillnameAndAmount[i].name.charAt(0).toUpperCase() + 
+            const capitalizedSkillName = skillnameAndAmount[i].name.charAt(0).toUpperCase() +
                                           skillnameAndAmount[i].name.slice(1);
             arr.push(capitalizedSkillName);
             arrvalues.push(skillnameAndAmount[i].amount);
@@ -238,7 +292,7 @@ async function displayUserData(data) {
     const upAudit = user.totalUp / 1000;
     const downAudit = user.totalDown / 1000;
     createAuditRatioGraph(upAudit, downAudit);
-    document.getElementById('ratio-value').textContent = 
+    document.getElementById('ratio-value').textContent =
         `${(upAudit / downAudit).toFixed(1)} Almost perfect!`;
 
     // Display recent projects
@@ -256,35 +310,6 @@ async function displayUserData(data) {
         noProjects.textContent = 'No recent projects';
         projectRecents.appendChild(noProjects);
     }
-}
-
-// Display audit history on the profile page
-function displayAuditHistory(auditData) {
-    const auditHistory = document.getElementById('auditHistory');
-    auditHistory.innerHTML = '';
-
-    auditData.forEach(audit => {
-        // Create audit item row
-        const row = document.createElement('div');
-        row.className = 'audit-item';
-
-        // Extract project name from path
-        const pathParts = audit.group.path.split('/');
-        const projectName = pathParts[pathParts.length - 1];
-
-        // Create audit information text
-        const auditInfo = document.createElement('div');
-        auditInfo.textContent = `${audit.group.captain.login} - ${projectName}`;
-        row.appendChild(auditInfo);
-
-        // Add pass status (all audits with non-null code are passes)
-        const statusDiv = document.createElement('div');
-        statusDiv.className = 'status-pass';
-        statusDiv.textContent = 'Pass';
-        row.appendChild(statusDiv);
-
-        auditHistory.appendChild(row);
-    });
 }
 
 // Draw the radar chart for skills visualization
@@ -467,38 +492,17 @@ function createAuditRatioGraph(auditDone, auditReceived) {
     container.appendChild(svg);
 }
 
-// Initialize page and add event listeners
-document.addEventListener('DOMContentLoaded', checkAuth);
+
+// Logout functionality
+function logout() {
+    sessionStorage.removeItem('jwt');
+    window.location.href = 'login.html';
+}
+
+// Add event listener for logout button
 document.getElementById('logoutBtn').addEventListener('click', logout);
 
 // Handle browser navigation
 window.onpopstate = function(event) {
-    const token = sessionStorage.getItem('jwt');
-    if (!token) {
-        redirectToLogin();
-    }
+    //checkAuth(); //This function is not defined anymore.  Removed to avoid errors.
 };
-
-// Check authentication status
-function checkAuth() {
-    const token = sessionStorage.getItem('jwt');
-    if (!token) {
-        redirectToLogin();
-        return;
-    }
-    fetchUserProfile();
-}
-
-// Logout functionality
-function logout() {
-    // Clear session storage
-    sessionStorage.removeItem('jwt');
-    sessionStorage.clear();
-    // Clear all cookies
-    document.cookie.split(";").forEach(function(c) {
-        document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + 
-            new Date().toUTCString() + ";path=/");
-    });
-    // Redirect to login page
-    redirectToLogin();
-}
