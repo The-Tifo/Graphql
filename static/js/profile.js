@@ -5,9 +5,7 @@ function isAuthenticated() {
     return token !== null && token !== undefined;
 }
 
-// Runs when the page loads
-// Checks if the user is authenticated before fetching profile data
-// Redirects to login page if authentication fails
+// Initialize page and fetch profile data
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('DOM Content Loaded, checking authentication...');
     if (!isAuthenticated()) {
@@ -17,7 +15,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     try {
         console.log('Starting to fetch profile data...');
-        await fetchProfile(); // Calls function to fetch and display profile data
+        await fetchProfile();
     } catch (error) {
         console.error('Failed to load profile:', error);
     }
@@ -119,7 +117,7 @@ async function fetchProfile() {
             body: JSON.stringify({
                 query: `
                 {
-                    audit(where: {auditor: {id: {_eq:${userId}}}private: { code: { _is_null: false },}},order_by: {id: desc},limit:5){
+                    audit(where: {auditor: {id: {_eq:${userId}}}, private: {code: {_is_null: false}}}, order_by: {id: desc}, limit: 5) {
                         createdAt
                         auditedAt
                         group {
@@ -131,7 +129,7 @@ async function fetchProfile() {
                                 login
                             }
                         }
-                        private{
+                        private {
                             code
                         }
                     }
@@ -166,6 +164,9 @@ async function fetchProfile() {
 // Display audit history on the profile page
 function displayAuditHistory(auditData) {
     const auditHistory = document.getElementById('currentOrDoneAudits');
+    console.log('Audit container found:', !!auditHistory);
+    console.log('Received audit data:', auditData);
+
     if (!auditHistory) {
         console.error('Could not find audit history container');
         return;
@@ -177,35 +178,39 @@ function displayAuditHistory(auditData) {
         return;
     }
 
-    for (let i = 0; i < auditData.length; i++) {
-        const audit = auditData[i];
+    console.log('Processing', auditData.length, 'audits');
 
-        // Create audit row
-        const row = document.createElement('div');
-        row.style.display = 'flex';
-        row.style.alignItems = 'center';
-        row.style.justifyContent = 'space-between';
-        row.style.marginBottom = '10px';
-        row.style.marginLeft = '35px';
-        row.style.marginRight = '35px';
+    auditData.forEach((audit, index) => {
+        try {
+            // Create row with flex layout
+            const row = document.createElement('div');
+            row.style.display = 'flex';
+            row.style.alignItems = 'center';
+            row.style.justifyContent = 'space-between';
+            row.style.marginBottom = '10px';
+            row.style.paddingLeft = '35px';
+            row.style.paddingRight = '35px';
 
-        // Extract project name from path
-        const pathParts = audit.group.path.split('/');
-        const projectName = pathParts[pathParts.length - 1];
+            // Extract project name from path
+            const pathParts = audit.group.path.split('/');
+            const projectName = pathParts[pathParts.length - 1];
 
-        // Create audit info
-        const auditInfo = document.createElement('div');
-        auditInfo.textContent = `${audit.group.captain.login} - ${projectName}`;
-        row.appendChild(auditInfo);
+            // Create audit info with username and project
+            const recentProject = document.createElement('div');
+            recentProject.textContent = `${audit.group.captain.login} - ${projectName}`;
+            row.appendChild(recentProject);
 
-        // Create status indicator (Pass/Fail)
-        const statusDiv = document.createElement('div');
-        statusDiv.classList.add(audit.private.code ? 'status-pass' : 'status-fail');
-        statusDiv.textContent = audit.private.code ? 'Pass' : 'Fail';
-        row.appendChild(statusDiv);
+            // Create pass/fail status
+            const statusButton = document.createElement('div');
+            statusButton.classList.add(audit.private && audit.private.code ? 'status-pass' : 'status-fail');
+            statusButton.textContent = audit.private && audit.private.code ? 'Pass' : 'Fail';
+            row.appendChild(statusButton);
 
-        auditHistory.appendChild(row);
-    }
+            auditHistory.appendChild(row);
+        } catch (error) {
+            console.error('Error processing audit:', error, audit);
+        }
+    });
 }
 
 // Extract and process top skills from user data
