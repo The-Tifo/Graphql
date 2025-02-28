@@ -1,483 +1,539 @@
-/* Reset default styles and set base font */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+// Function to check if token exists and is valid
+function isAuthenticated() {
+    const token = sessionStorage.getItem('jwt');
+    console.log('Checking authentication, token exists:', !!token);
+    return token !== null && token !== undefined;
 }
 
-/* Base body styling with notebook theme */
-body {
-    font-family: 'Courier New', monospace;
-    line-height: 1.6;
-    background: #b4876c;  /* Softer brown background */
-    padding: 20px;
-    min-height: 100vh;
-}
-
-/* Main container styling with notebook paper effect */
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    position: relative;
-    background: #fff;  /* Paper white background */
-    padding: 40px 40px 40px 60px;
-    border-radius: 5px;
-    box-shadow: 
-        0 0 10px rgba(0,0,0,0.1),
-        -7px 0 10px rgba(0,0,0,0.2);  /* Notebook shadow effect */
-    /* Create notebook paper lines using CSS gradients */
-    background-image: 
-        linear-gradient(90deg, #e6c3c3 1px, transparent 1px),  /* Vertical margin line */
-        repeating-linear-gradient(#fff 0px, #fff 24px, #ccd 25px);  /* Horizontal ruled lines */
-    background-size: 
-        60px 100%,  /* Margin width */
-        100% 25px;  /* Line height */
-    background-position: 40px 0, 0 0;
-}
-
-/* Hole punch effect on the left side */
-.container::before {
-    content: '';
-    position: absolute;
-    left: 20px;
-    top: 40px;
-    bottom: 40px;
-    width: 2px;
-    background: repeating-linear-gradient(
-        180deg,
-        transparent,
-        transparent 70px,
-        #ccc 70px,
-        #ccc 100px
-    );
-}
-
-/* Profile card container */
-.profile-card {
-    background: transparent;
-    padding: 20px;
-    margin-bottom: 20px;
-}
-
-/* Grid layout for statistics */
-.stats-grid {
-    display: grid;
-    grid-template-columns: minmax(250px, 1fr) 2fr;
-    gap: 20px;
-    margin-top: 20px;
-}
-
-/* Left column styling */
-.stats-column {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-/* Individual stat item styling */
-.stat-item {
-    background: rgba(255, 255, 255, 0.9);
-    padding: 15px;
-    border-radius: 6px;
-    text-align: center;
-    border: 1px solid #ccd;
-}
-
-/* Audit section specific styling */
-.audit-section {
-    margin-top: 0;
-}
-
-.audit-section h3 {
-    color: #555;
-    margin-bottom: 10px;
-    font-family: 'Courier New', monospace;
-    font-size: 1em;
-}
-
-/* Skills container specific styling */
-.skills-container {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px 0 80px;  /* Further increased bottom padding */
-}
-
-/* XP and audit container layout */
-.xp-audit-container {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-/* Audit ratio section styling */
-.audit-ratio-section {
-    margin-top: 20px;
-    padding-top: 15px;
-    border-top: 1px dashed #ccd;
-}
-
-.audit-ratio-section h4 {
-    color: #555;
-    margin-bottom: 10px;
-    font-family: 'Courier New', monospace;
-    font-size: 1em;
-}
-
-/* Stat item header styling */
-.stat-item h3 {
-    color: #555;
-    margin-bottom: 10px;
-    font-family: 'Courier New', monospace;
-    padding-bottom: 10px;
-    border-bottom: 1px dashed #ccd;
-}
-
-/* Stat value styling */
-.stat-value {
-    font-size: 24px;
-    font-weight: bold;
-    color: #2c3e50;
-}
-
-/* Skills graph specific styling */
-#skills-graph {
-    margin-top: -20px;  /* More negative top margin to move graph up */
-    width: 100%;
-    max-width: 500px;
-}
-
-#skills-graph text {
-    fill: #555;
-    font-family: 'Courier New', monospace;
-    font-size: 12px;
-}
-
-#skills-graph .grid-line {
-    fill: none;
-    stroke: #ccd;
-    stroke-width: 1;
-    opacity: 0.3;
-}
-
-#skills-graph .skill-polygon {
-    fill: rgba(146, 109, 75, 0.1);
-    stroke: #926d4b;
-    stroke-width: 2;
-}
-
-#skills-graph .skill-point {
-    fill: #926d4b;
-}
-
-/* Audit ratio specific styles */
-.audit-labels {
-    display: none;
-}
-
-#audit-ratio-graph {
-    margin: 10px 0;
-}
-
-#audit-ratio-graph .done-bar {
-    fill: #926d4b;
-}
-
-#audit-ratio-graph .received-bar {
-    fill: #b4876c;
-}
-
-#audit-ratio-graph text {
-    fill: #555;
-    font-family: 'Courier New', monospace;
-    font-size: 12px;
-}
-
-/* Bar label styling */
-#audit-ratio-graph .bar-label {
-    fill: #555;
-    font-family: 'Courier New', monospace;
-    font-size: 14px;
-    font-weight: bold;
-}
-
-/* Ratio value display */
-.ratio-value {
-    color: #926d4b;
-    font-family: 'Courier New', monospace;
-    font-size: 18px;
-    text-align: center;
-    margin-top: 15px;
-}
-
-/* Graphs container styling */
-.graphs-container {
-    display: block;
-    margin-top: 20px;
-}
-
-/* Individual graph styling */
-.graph {
-    background: #fff;
-    padding: 25px;
-    border-radius: 8px;
-    margin-top: 20px;
-    border: 1px solid #ccd;
-    position: relative;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-}
-
-.graph h2 {
-    color: #555;
-    font-family: 'Courier New', monospace;
-    margin-bottom: 20px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #ccd;
-    text-align: center;
-}
-
-/* Logout button styling */
-.logout-btn {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    padding: 10px 20px;
-    background: #e67c7c;  /* Soft red color */
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-family: 'Courier New', monospace;
-}
-
-.logout-btn:hover {
-    background: #d46a6a;  /* Darker on hover */
-}
-
-/* User info section styling */
-#user-info {
-    margin-bottom: 30px;
-    text-align: center;
-    padding: 20px 0;
-}
-
-#user-info h2 {
-    color: #555;
-    font-family: 'Courier New', monospace;
-    margin: 0 auto;
-    display: inline-block;
-    position: relative;
-    font-size: 24px;
-}
-
-/* Sticky note styling for recent projects */
-.sticky-note {
-    background: #ffd966;  /* Post-it yellow color */
-    padding: 20px;
-    margin-top: 30px;
-    border-radius: 2px;
-    box-shadow: 
-        0 1px 3px rgba(0,0,0,0.12),
-        0 1px 2px rgba(0,0,0,0.24);
-    position: relative;
-    transform: rotate(-1deg);  /* Slight rotation for effect */
-}
-
-.sticky-note h3 {
-    color: #333;
-    margin-bottom: 15px;
-    font-family: 'Courier New', monospace;
-    border-bottom: 1px solid rgba(0,0,0,0.1);
-    padding-bottom: 10px;
-}
-
-/* Project list styling */
-.project-list {
-    font-family: 'Courier New', monospace;
-    color: #333;
-}
-
-.project-list div {
-    margin: 8px 0;
-    padding: 5px 0;
-    border-bottom: 1px dashed rgba(0,0,0,0.1);
-}
-
-.project-list div:last-child {
-    border-bottom: none;
-}
-
-/* Audit history section styling */
-.audit-history {
-    background: white;
-    padding: 20px;
-    margin-top: 30px;
-    border-radius: 6px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    border: 1px solid #ccd;
-}
-
-.audit-history h3 {
-    color: #555;
-    margin-bottom: 15px;
-    font-family: 'Courier New', monospace;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #ccd;
-}
-
-/* Audit list styling */
-.audit-list {
-    font-family: 'Courier New', monospace;
-}
-
-.audit-list .audit-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 35px;
-    margin-bottom: 10px;
-    border-bottom: 1px dashed rgba(0,0,0,0.1);
-}
-
-.audit-list .audit-item:last-child {
-    border-bottom: none;
-}
-
-.audit-list .audit-date {
-    color: #555;
-    margin: 15px 0 5px;
-    font-size: 0.9em;
-}
-
-/* Status indicators styling */
-.status-pass, .status-fail {
-    padding: 5px 15px;
-    border-radius: 4px;
-    font-weight: bold;
-    font-family: 'Courier New', monospace;
-}
-
-.status-pass {
-    background: #4CAF50;  /* Success green */
-    color: white;
-}
-
-.status-fail {
-    background: #f44336;  /* Error red */
-    color: white;
-}
-
-/* Add responsive design media queries */
-@media screen and (max-width: 768px) {
-    .container {
-        padding: 20px 15px 20px 30px;
-        margin: 10px;
-        background-size: 30px 100%, 100% 25px;
-        background-position: 20px 0, 0 0;
+// Initialize page and fetch profile data
+document.addEventListener('DOMContentLoaded', async () => {
+    console.log('DOM Content Loaded, checking authentication...');
+    if (!isAuthenticated()) {
+        console.log('No authentication token found, redirecting to login');
+        window.location.href = 'login.html';
+        return;
     }
-
-    .container::before {
-        left: 10px;
+    try {
+        console.log('Starting to fetch profile data...');
+        await fetchProfile();
+    } catch (error) {
+        console.error('Failed to load profile:', error);
     }
+});
 
-    .stats-grid {
-        grid-template-columns: 1fr;
-        gap: 15px;
-    }
+async function fetchProfile() {
+    const token = sessionStorage.getItem('jwt');
+    console.log('Fetching profile with token:', token ? 'exists' : 'missing');
 
-    .stat-item {
-        padding: 10px;
-    }
+    try {
+        const response = await fetch('https://learn.reboot01.com/api/graphql-engine/v1/graphql', {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                query: `
+                {
+                    user {
+                        id
+                        login
+                        auditRatio
+                        totalUp
+                        totalDown
+                        attrs
+                    }
+                    transaction_aggregate(
+                        where: {
+                            _and: [
+                                { type: { _eq: "xp" } },
+                                { path: { _like: "/bahrain/bh-module/%" } },
+                                { path: { _nlike: "/bahrain/bh-module/piscine-js/%"} }
+                            ]
+                        }
+                    ) {
+                        aggregate {
+                            sum {
+                                amount
+                            }
+                        }
+                    }
+                    progressionSkill:user {
+                        transactions(
+                            where: {type: {_like: "skill_%"}}
+                            distinct_on: type
+                            order_by: [{type: asc}, {amount: desc}]
+                        ) {
+                            type
+                            amount
+                        }
+                    }
+                    recentProj:transaction(
+                        where: {
+                            type: { _eq: "xp" }
+                            _and: [
+                                { path: { _like: "/bahrain/bh-module%" } },
+                                { path: { _nlike: "/bahrain/bh-module/checkpoint%" } },
+                                { path: { _nlike: "/bahrain/bh-module/piscine-js%" } }
+                            ]
+                        }
+                        order_by: { createdAt: desc }
+                        limit: 5
+                    ) {
+                        object {
+                            type
+                            name
+                        }
+                    }
+                }
+                `
+            })
+        });
 
-    .skills-container {
-        padding: 10px 10px 70px;  /* Increased bottom padding for mobile */
-        width: 100%;
-    }
+        console.log('Profile API response status:', response.status);
 
-    #skills-graph {
-        height: 200px;  /* Reduced height */
-        width: 80%;     /* Reduced width */
-        max-width: 300px;
-        margin: -25px auto 0;  /* Increased negative margin */
-        display: block;
-    }
+        if (!response.ok) {
+            throw new Error(`Network error: ${response.status}`);
+        }
 
-    .stat-value {
-        font-size: 20px;
-    }
+        const result = await response.json();
+        console.log('Profile data received:', result ? 'yes' : 'no');
 
-    .sticky-note {
-        margin: 20px 0;
-        padding: 15px;
-    }
+        if (!result.data || !result.data.user || !result.data.user.length) {
+            throw new Error('No user data received');
+        }
 
-    .audit-history {
-        padding: 15px;
-    }
+        const data = result.data;
+        const userId = data.user[0].id;
+        console.log('User ID retrieved:', userId);
 
-    .audit-list .audit-item {
-        padding: 8px 15px;
-        font-size: 14px;
-    }
+        // Fetch audit data
+        const auditResponse = await fetch('https://learn.reboot01.com/api/graphql-engine/v1/graphql', {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                query: `
+                {
+                    audit(where: {auditor: {id: {_eq:${userId}}}, private: {code: {_is_null: false}}}, order_by: {id: desc}, limit: 5) {
+                        createdAt
+                        auditedAt
+                        group {
+                            path
+                            captain {
+                                id
+                                firstName
+                                lastName
+                                login
+                            }
+                        }
+                        private {
+                            code
+                        }
+                    }
+                }
+                `
+            })
+        });
 
-    .status-pass, .status-fail {
-        padding: 3px 10px;
-        font-size: 12px;
-    }
+        console.log('Audit API response status:', auditResponse.status);
 
-    .logout-btn {
-        position: relative;
-        top: 0;
-        right: 0;
-        margin-bottom: 20px;
-        width: 100%;
-    }
+        if (!auditResponse.ok) {
+            throw new Error(`Failed to fetch audit data: ${auditResponse.status}`);
+        }
 
-    #user-info h2 {
-        font-size: 20px;
-        word-wrap: break-word;
-    }
+        const auditResult = await auditResponse.json();
+        const auditData = auditResult.data.audit;
 
-    .ratio-value {
-        font-size: 16px;
-    }
+        await displayUserData(data);
+        displayAuditHistory(auditData);
 
-    /* Adjust audit list for mobile */
-    .audit-list .audit-item {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
-    }
-
-    .audit-list .audit-item > div:first-child {
-        margin-bottom: 5px;
+    } catch (error) {
+        console.error('Error in fetchProfile:', error);
+        // Only redirect for authentication errors
+        if (error.message.includes('Network error') || error.message.includes('No user data')) {
+            console.log('Authentication error detected, clearing session and redirecting');
+            sessionStorage.removeItem('jwt');
+            window.location.href = 'login.html';
+        }
     }
 }
 
-/* Additional adjustments for very small screens */
-@media screen and (max-width: 480px) {
-    .container {
-        padding: 15px 10px 15px 25px;
-        margin: 5px;
+// Display audit history on the profile page
+function displayAuditHistory(auditData) {
+    const auditHistory = document.getElementById('currentOrDoneAudits');
+    console.log('Audit container found:', !!auditHistory);
+    console.log('Received audit data:', auditData);
+
+    if (!auditHistory) {
+        console.error('Could not find audit history container');
+        return;
+    }
+    auditHistory.innerHTML = '';
+
+    if (!auditData || !Array.isArray(auditData)) {
+        console.error('Invalid audit data received:', auditData);
+        return;
     }
 
-    #skills-graph {
-        height: 180px;  /* Further reduced height */
-        width: 70%;     /* Further reduced width */
-        max-width: 250px;
-        margin: -30px auto 0;  /* Further increased negative margin */
+    console.log('Processing', auditData.length, 'audits');
+
+    auditData.forEach((audit, index) => {
+        try {
+            // Create row with flex layout
+            const row = document.createElement('div');
+            row.style.display = 'flex';
+            row.style.alignItems = 'center';
+            row.style.justifyContent = 'space-between';
+            row.style.marginBottom = '10px';
+            row.style.paddingLeft = '35px';
+            row.style.paddingRight = '35px';
+
+            // Extract project name from path
+            const pathParts = audit.group.path.split('/');
+            const projectName = pathParts[pathParts.length - 1];
+
+            // Create audit info with username and project
+            const recentProject = document.createElement('div');
+            recentProject.textContent = `${audit.group.captain.login} - ${projectName}`;
+            row.appendChild(recentProject);
+
+            // Create status indicator (Pass/Fail/Pending)
+            const statusButton = document.createElement('div');
+
+            // Check if the audit has a private code and determine status
+            let status;
+            if (!audit.private || audit.private.code === null || audit.private.code === undefined) {
+                status = 'pending';
+            } else {
+                status = audit.private.code ? 'pass' : 'fail';
+            }
+
+            // Apply appropriate status class and text
+            statusButton.classList.add(`status-${status}`);
+            statusButton.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+
+            row.appendChild(statusButton);
+            auditHistory.appendChild(row);
+        } catch (error) {
+            console.error('Error processing audit:', error, audit);
+        }
+    });
+}
+
+// Extract and process top skills from user data
+// This function aggregates skill amounts by type and returns the top 6 skills
+function getTopSkills(skills) {
+    if (!Array.isArray(skills)) {
+        console.error("Expected an array of skills.");
+        return [];
+    }
+    // Aggregate skill amounts by type
+    const topSkills = skills.reduce((acc, skill) => {
+        if (typeof skill === 'object' && skill !== null && 'type' in skill && 'amount' in skill) {
+            // Extract skill name from type (remove 'skill_' prefix)
+            const skillType = skill.type.split("_")[1];
+            if (typeof skillType === 'string' && !isNaN(skill.amount)) {
+                if (skillType === 'front') {
+                    // Special handling for 'front' to show as 'frontend'
+                    if (acc['frontend']) {
+                        acc['frontend'] += skill.amount;
+                    } else {
+                        acc['frontend'] = skill.amount;
+                    }
+                } else if (skillType === 'algo') {
+                    // Special handling for 'algo' to show as 'HTML'
+                    if (acc['HTML']) {
+                        acc['HTML'] += skill.amount;
+                    } else {
+                        acc['HTML'] = skill.amount;
+                    }
+                } else {
+                    // Sum up amounts for each skill type
+                    if (acc[skillType]) {
+                        acc[skillType] += skill.amount;
+                    } else {
+                        acc[skillType] = skill.amount;
+                    }
+                }
+            }
+        }
+        return acc;
+    }, {});
+
+    // Sort skills by amount and take top 6
+    const sortedSkills = Object.entries(topSkills).sort((a, b) => b[1] - a[1]);
+    return sortedSkills
+        .slice(0, Math.min(6, sortedSkills.length))
+        .map(([name, amount]) => ({ name, amount }));
+}
+
+// Display user data on the profile page
+async function displayUserData(data) {
+    if (!data || !data.user || !data.user[0]) {
+        console.error('Invalid data structure:', data);
+        return;
     }
 
-    .skills-container {
-        padding: 5px 5px 60px;  /* Increased bottom padding */
+    const user = data.user[0];
+    const userSkills = data.progressionSkill[0]?.transactions || [];
+
+    // Update user info section with name and login
+    document.getElementById('user-info').innerHTML = `
+        <h2>Welcome, ${user.attrs.firstName || ''} ${user.attrs.lastName || ''} (${user.login})!</h2>
+    `;
+
+    // Calculate and format total XP
+    // Converts XP to KB/MB format for better readability
+    if (data.transaction_aggregate.aggregate.sum.amount != null) {
+        const amount = data.transaction_aggregate.aggregate.sum.amount;
+        const inKB = amount / 1000; // Convert to KB
+        if (inKB >= 1000) {
+            document.getElementById('xp-total').textContent = (inKB / 1000).toFixed(1) + " MB";
+        } else {
+            document.getElementById('xp-total').textContent = inKB.toFixed(0) + " KB";
+        }
+    } else {
+        document.getElementById('xp-total').textContent = "0 KB";
     }
 
-    .stat-value {
-        font-size: 18px;
+    // Process and display skills data
+    const skillnameAndAmount = getTopSkills(userSkills);
+    let arr = [];    // Array to store skill names
+    let arrvalues = []; // Array to store skill values
+
+    // Process each skill for display
+    for (let i = 0; i < skillnameAndAmount.length; i++) {
+        if (skillnameAndAmount[i].name.length >= 2) {
+            // Capitalize first letter of skill name
+            const capitalizedSkillName = skillnameAndAmount[i].name.charAt(0).toUpperCase() +
+                                          skillnameAndAmount[i].name.slice(1);
+            arr.push(capitalizedSkillName);
+            arrvalues.push(skillnameAndAmount[i].amount);
+        }
     }
 
-    #user-info h2 {
-        font-size: 18px;
+    // Scale skill values to 5-point scale and draw radar chart
+    arrvalues = arrvalues.map(value => (value / 100) * 5);
+    drawSvgRadar(arr, arrvalues);
+
+    // Calculate and display audit ratio
+    const upAudit = user.totalUp / 1000;
+    const downAudit = user.totalDown / 1000;
+    createAuditRatioGraph(upAudit, downAudit);
+    document.getElementById('ratio-value').textContent =
+        `${(upAudit / downAudit).toFixed(1)} Almost perfect!`;
+
+    // Display recent projects
+    const projectRecents = document.getElementById('ProjectRecents');
+    projectRecents.innerHTML = '';
+
+    if (data.recentProj && data.recentProj.length > 0) {
+        data.recentProj.forEach((proj, index) => {
+            const recentProject = document.createElement('div');
+            recentProject.textContent = `${index + 1}. ${proj.object.name}`;
+            projectRecents.appendChild(recentProject);
+        });
+    } else {
+        const noProjects = document.createElement('div');
+        noProjects.textContent = 'No recent projects';
+        projectRecents.appendChild(noProjects);
     }
 }
+
+// Draw the radar chart for skills visualization
+function drawSvgRadar(nameData, Pointdata) {
+    // Initialize SVG container and clear existing content
+    const container = document.getElementById('skills-graph');
+    container.innerHTML = '';
+
+    // Set dimensions and calculate center point
+    const width = container.clientWidth;
+    const height = 300;
+    const centerX = width / 2;
+    const centerY = height / 2;
+    const radius = Math.min(centerX, centerY) * 0.6; // Use 60% of minimum dimension for radius
+
+    // Create main SVG element with viewBox for responsiveness
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('width', width);
+    svg.setAttribute('height', height);
+    svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+
+    // Create 10 concentric circles for the grid
+    const gridLevels = 10;
+    for (let i = 1; i <= gridLevels; i++) {
+        const gridCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        gridCircle.setAttribute('cx', centerX);
+        gridCircle.setAttribute('cy', centerY);
+        gridCircle.setAttribute('r', (radius * i) / gridLevels);
+        gridCircle.setAttribute('class', 'grid-line');
+        svg.appendChild(gridCircle);
+    }
+
+    const categories = nameData;
+    const numCategories = categories.length;
+    // Calculate angle slice for evenly distributing categories
+    const angleSlice = (Math.PI * 2) / numCategories;
+
+    // Draw axis lines and labels for each category
+    categories.forEach((category, i) => {
+        const angle = i * angleSlice - Math.PI / 2; // Start from top (-90 degrees)
+
+        // Draw axis line
+        const axis = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        axis.setAttribute('x1', centerX);
+        axis.setAttribute('y1', centerY);
+        axis.setAttribute('x2', centerX + radius * Math.cos(angle));
+        axis.setAttribute('y2', centerY + radius * Math.sin(angle));
+        axis.setAttribute('class', 'grid-line');
+        svg.appendChild(axis);
+
+        // Add category label
+        const labelRadius = radius + 20; // Position labels slightly outside the chart
+        const labelX = centerX + labelRadius * Math.cos(angle);
+        const labelY = centerY + labelRadius * Math.sin(angle);
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', labelX);
+        text.setAttribute('y', labelY);
+        text.setAttribute('text-anchor', 'middle');
+        text.setAttribute('dominant-baseline', 'middle');
+        text.textContent = category;
+        svg.appendChild(text);
+    });
+
+    // Calculate points for the skill polygon
+    const points = Pointdata.map((value, i) => {
+        const angle = i * angleSlice - Math.PI / 2;
+        const distance = value * (radius / 5); // Scale to match the 5-point scale
+        return {
+            x: centerX + distance * Math.cos(angle),
+            y: centerY + distance * Math.sin(angle)
+        };
+    });
+
+    // Create and add the skill polygon
+    const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    polygon.setAttribute('points', points.map(p => `${p.x},${p.y}`).join(' '));
+    polygon.setAttribute('class', 'skill-polygon');
+    svg.appendChild(polygon);
+
+    // Add points at vertices for better visibility
+    points.forEach(point => {
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', point.x);
+        circle.setAttribute('cy', point.y);
+        circle.setAttribute('r', 4);
+        circle.setAttribute('class', 'skill-point');
+        svg.appendChild(circle);
+    });
+
+    container.appendChild(svg);
+}
+
+// Create a bar graph showing audit ratio comparison
+function createAuditRatioGraph(auditDone, auditReceived) {
+    // Initialize SVG container and clear existing content
+    const container = document.getElementById('audit-ratio-graph');
+    container.innerHTML = '';
+
+    // Set dimensions for the graph
+    const width = container.clientWidth;
+    const height = 120;
+    const barHeight = 30;
+    const spacing = 20;
+
+    // Create main SVG element
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('width', width);
+    svg.setAttribute('height', height);
+
+    // Center the bars vertically in the container
+    const startY = (height - (2 * barHeight + spacing)) / 2;
+
+    // Format values for display (KB to MB conversion if needed)
+    let doneMB = auditDone;
+    let receivedMB = auditReceived;
+    let doneLabel, receivedLabel;
+
+    // Format "Done" audits value
+    if (auditDone >= 1000) {
+        doneMB = (auditDone / 1000).toFixed(2);
+        doneLabel = `${doneMB} MB`;
+    } else {
+        doneLabel = `${auditDone.toFixed(0)} KB`;
+    }
+
+    // Format "Received" audits value
+    if (auditReceived >= 1000) {
+        receivedMB = (auditReceived / 1000).toFixed(2);
+        receivedLabel = `${receivedMB} MB`;
+    } else {
+        receivedLabel = `${auditReceived.toFixed(0)} KB`;
+    }
+
+    // Calculate relative widths for the bars
+    const maxValue = Math.max(auditDone, auditReceived);
+    const scale = (width - 100) / maxValue; // Leave space for labels
+
+    // Create and add "Done" audits bar
+    const doneWidth = auditDone * scale;
+    const doneBar = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    doneBar.setAttribute('x', 0);
+    doneBar.setAttribute('y', startY);
+    doneBar.setAttribute('width', doneWidth);
+    doneBar.setAttribute('height', barHeight);
+    doneBar.setAttribute('class', 'done-bar');
+    doneBar.setAttribute('rx', 4);
+    doneBar.setAttribute('ry', 4);
+
+    // Add "Done" label with arrow
+    const doneText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    doneText.setAttribute('x', doneWidth + 10);
+    doneText.setAttribute('y', startY + barHeight / 2);
+    doneText.setAttribute('dominant-baseline', 'middle');
+    doneText.textContent = `${doneLabel} ↑`;
+
+    // Create and add "Received" audits bar
+    const receivedWidth = auditReceived * scale;
+    const receivedBar = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    receivedBar.setAttribute('x', 0);
+    receivedBar.setAttribute('y', startY + barHeight + spacing);
+    receivedBar.setAttribute('width', receivedWidth);
+    receivedBar.setAttribute('height', barHeight);
+    receivedBar.setAttribute('class', 'received-bar');
+    receivedBar.setAttribute('rx', 4);
+    receivedBar.setAttribute('ry', 4);
+
+    // Add "Received" label with arrow
+    const receivedText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    receivedText.setAttribute('x', receivedWidth + 10);
+    receivedText.setAttribute('y', startY + barHeight + spacing + barHeight / 2);
+    receivedText.setAttribute('dominant-baseline', 'middle');
+    receivedText.textContent = `${receivedLabel} ↓`;
+
+    // Append all elements to the SVG
+    svg.appendChild(doneBar);
+    svg.appendChild(receivedBar);
+    svg.appendChild(doneText);
+    svg.appendChild(receivedText);
+
+    container.appendChild(svg);
+}
+
+
+// Logout functionality
+function logout() {
+    sessionStorage.removeItem('jwt');
+    window.location.href = 'login.html';
+}
+
+// Add event listener for logout button
+document.getElementById('logoutBtn').addEventListener('click', logout);
+
+// Handle browser navigation
+window.onpopstate = function(event) {
+    //checkAuth(); //This function is not defined anymore.  Removed to avoid errors.
+};
