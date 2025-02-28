@@ -200,22 +200,12 @@ function displayAuditHistory(auditData) {
             recentProject.textContent = `${audit.group.captain.login} - ${projectName}`;
             row.appendChild(recentProject);
 
-            // Create status indicator (Pass/Fail/Pending)
+            // Create pass/fail status
             const statusButton = document.createElement('div');
-
-            // Check if the audit has a private code and determine status
-            let status;
-            if (!audit.private || audit.private.code === null || audit.private.code === undefined) {
-                status = 'pending';
-            } else {
-                status = audit.private.code ? 'pass' : 'fail';
-            }
-
-            // Apply appropriate status class and text
-            statusButton.classList.add(`status-${status}`);
-            statusButton.textContent = status.charAt(0).toUpperCase() + status.slice(1);
-
+            statusButton.classList.add(audit.private && audit.private.code ? 'status-pass' : 'status-fail');
+            statusButton.textContent = audit.private && audit.private.code ? 'Pass' : 'Fail';
             row.appendChild(statusButton);
+
             auditHistory.appendChild(row);
         } catch (error) {
             console.error('Error processing audit:', error, audit);
@@ -236,27 +226,11 @@ function getTopSkills(skills) {
             // Extract skill name from type (remove 'skill_' prefix)
             const skillType = skill.type.split("_")[1];
             if (typeof skillType === 'string' && !isNaN(skill.amount)) {
-                if (skillType === 'front') {
-                    // Special handling for 'front' to show as 'frontend'
-                    if (acc['frontend']) {
-                        acc['frontend'] += skill.amount;
-                    } else {
-                        acc['frontend'] = skill.amount;
-                    }
-                } else if (skillType === 'algo') {
-                    // Special handling for 'algo' to show as 'HTML'
-                    if (acc['HTML']) {
-                        acc['HTML'] += skill.amount;
-                    } else {
-                        acc['HTML'] = skill.amount;
-                    }
+                // Sum up amounts for each skill type
+                if (acc[skillType]) {
+                    acc[skillType] += skill.amount;
                 } else {
-                    // Sum up amounts for each skill type
-                    if (acc[skillType]) {
-                        acc[skillType] += skill.amount;
-                    } else {
-                        acc[skillType] = skill.amount;
-                    }
+                    acc[skillType] = skill.amount;
                 }
             }
         }
