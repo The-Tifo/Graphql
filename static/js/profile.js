@@ -203,11 +203,12 @@ function displayAuditHistory(auditData) {
             // Create status indicator (Pass/Fail/Pending)
             const statusButton = document.createElement('div');
 
-            // Check if the audit has a private code and determine status
+            // Check if audit is completed and has a valid status
             let status;
-            if (!audit.private || audit.private.code === null || audit.private.code === undefined) {
+            if (!audit.auditedAt || !audit.private || audit.private.code === null || audit.private.code === undefined) {
                 status = 'pending';
             } else {
+                // Only set pass/fail if audit is completed
                 status = audit.private.code ? 'pass' : 'fail';
             }
 
